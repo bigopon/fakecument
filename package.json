@@ -1,0 +1,19 @@
+{
+  "name": "fakecument",
+  "version": "0.1.0",
+  "description": "Fake document for node",
+  "main": "fakecument.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "minify": "uglifyjs fakecument.js -o fakecument.min.js -c dead_code,unused,booleans,loops,join_vars,drop_debugger,drop_console,sequences -m"
+  },
+  "keywords": [
+		"fakecument",
+		"fake browser document",
+		"document helper",
+		"quickdom",
+		"dominic"
+	],
+  "author": "bigopon <bigopon.777@gmail.com> (http://bigopon.surge.sh)",
+  "license": "MIT"
+}
