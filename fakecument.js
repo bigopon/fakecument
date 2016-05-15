@@ -38,6 +38,16 @@
                         if (val)
                             result += ' ' + key + '="' + val.replace(dbqRegex, '\'') + '"'
                     }
+                    if (keys.indexOf('id') === -1) {
+                        var nodeId = this._node._id
+                        if (nodeId)
+                            result = ' id="' + nodeId + '"' + result
+                    }
+                    if (keys.indexOf('class') === -1) {
+                        var nodeClass = this._node.className
+                        if (nodeClass)
+                            result = ' class="' + nodeClass + '"' + result
+                    }
                     return result
                 }
             }
@@ -45,7 +55,7 @@
         return Attributes
     })()
     
-    var normalStyles = []
+    var normalStyles = ['color', 'display', 'white-space', 'whiteSpace', 'overflow', 'overflow-x', 'overflow-y', 'overflowX', 'overflowY']
     var pxRegex = /^\s*[0-9]+px\s*$/
     var pxOrPcRegex = /^([0-9]+px)|([0-9]+%)$/
     var styleWithPxOrPc = ['width', 'minWidth', 'maxWidth', 'height', 'minHeight', 'maxHeight']
@@ -135,14 +145,16 @@
                     isTextNode: { value: true },
                     nodeValue: { value: name }
                 })
-            defProps(this, {
-                _class: { value: '', writable: true },
-                _id: { value: '', writable: true },
-                _children: { value: [], writable: true },
-                localName: { value: isTextNode ? '' : name, enumerable: true }
-            })
-            this.attributes = new Attributes(this)
-            this.style = new Style(this)
+            else {
+                defProps(this, {
+                    _class: { value: '', writable: true },
+                    _id: { value: '', writable: true },
+                    _children: { value: [], writable: true },
+                    localName: { value: isTextNode ? '' : name, enumerable: true }
+                })
+                this.attributes = new Attributes(this)
+                this.style = new Style(this)
+            }
         }
         defProps(Node.prototype, {
             className: {
@@ -231,11 +243,13 @@
             toString: {
                 value: function () {
                     if (this.isTextNode) return this.nodeValue
-                    var openTag = '<' + this.localName + this.attributes.value + ' style="' + this.style.value + '">'
+                    var styleValue = this.style.value
+                    var styleAttr = styleValue ? (' style="' + styleValue + '"') : ''
+                    var openTag = '<' + this.localName + this.attributes.value + styleAttr + '>'
                     var closeTag = '</' + this.localName + '>'
                     var childrenHtml = ''
                     for (var i = 0; i < this._children.length; i++)
-                        childrenHtml += '' + this._children[i]
+                        childrenHtml += this._children[i]
                     return openTag + childrenHtml + closeTag
                 }
             }
@@ -244,24 +258,40 @@
         return Node
     })()
     
+    var htmlElement = new Node('html')
+    defProps(htmlElement, {
+        head: {
+            value: new Node('head'),
+            enumerable: true
+        },
+        body: {
+            value: new Node('body'),
+            enumerable: true
+        }
+    })
+    
     /**
      * @fake document, mimic document behavior
      */
     var fakecument = {
-        /**
-         * @Mimic html element
-         * @param {String} name
-         */
-        createElement: function (name) {
-            return new Node(name)
+        document: {
+            documentElement: htmlElement,
+            /**
+             * @Mimic html element
+             * @param {String} name
+             */
+            createElement: function (name) {
+                return new Node(name)
+            },
+            /**
+             * @Mimic html text node
+             * @param {String} val text content 
+             */
+            createTextNode: function (val) {
+                return new Node(val, true)
+            },
         },
-        /**
-         * @Mimic html text node
-         * @param {String} val text content 
-         */
-        createTextNode: function (val) {
-            return new Node(val, true)
-        }
+        Node: Node
     }
     
     return fakecument
