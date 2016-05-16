@@ -4,7 +4,7 @@
 	else if (typeof exports === 'object')
 		module.exports = factory();
 	else
-		root.CreateElement = factory();
+		root.fakecument = factory();
 })(this, function () {
     var defProps = Object.defineProperties
     var defProp = Object.defineProperty
